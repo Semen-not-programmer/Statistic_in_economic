@@ -214,8 +214,8 @@ class Statistic:
             str_out += key + indent + str(value) + '\n'
         return str_out
 
-
-t = Statistic([74, 60, 82, 90, 55, 98])
-print(t.percentile(82))
+if __name__ == "__main__":
+    t = Statistic([74, 60, 82, 90, 55, 98])
+    print(t.percentile(82))
 
 
