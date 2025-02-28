@@ -218,4 +218,5 @@ if __name__ == "__main__":
     t = Statistic([74, 60, 82, 90, 55, 98])
     print(t.percentile(82))
 
-
+for i in range(3):
+    i += 1
