@@ -1,7 +1,8 @@
 # в этом скрипте записаны методы, которые понадобятся для работы со статистикой
 # в виде выборок
-#
-#
+
+# python git_commit.py
+
 
 from typing import Any, List, Union
 from typing import Union
@@ -38,7 +39,7 @@ class Selection:
         mode - мода
         """
 
-        self.selection = selection
+        self._selection = selection
         self.n = len(self._selection)
         self.miy = self.math_expect()
         self.dispersion = self.dispersion()

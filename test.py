@@ -1,14 +1,22 @@
-# этот файл проверяет правильность функционирования программы
-#
-#
+class Person:  
+    def __init__(self, name):  
+        self.name = name # приватный атрибут
+        self._name = self.name
+    @property  
+    def name(self):  
+        return self._name  
+    @name.setter  
+    def name(self, value):  
+        if not isinstance(value, str):  
+            raise TypeError('Name must be a string')  
+        self._name = value
 
-import os
-FILENAME = os.path.basename(__file__)
+    def dk(self):
+        w = self._name * 2
 
-class_name = "W:\Текстовые документы\Курс Методы анализа экономики\Литература\statistic.py"
-
-from selection import Statistic
-
-
-t = Statistic([10, 41, 485])
-print(t)
+person = Person("sgdrfhjk")
+# Использование геттера:  
+print(person.name)  
+# Использование сеттера:  
+person.name = 'Sam'
+person.dk()
