@@ -1,11 +1,15 @@
 {
+    "TITLE": {
+        "description": "Заголовок окна",
+        "value": "Настройки окна"
+    },
     "ON_CENTER_X": {
         "description": "Размещение по центру горизонтально",
-        "value": true
+        "value": false
     },
     "ON_CENTER_Y": {
         "description": "Размещение по центру вертикально",
-        "value": true
+        "value": false
     },
     "IS_LEFT": {
         "description": "Размещение слева",
@@ -45,6 +49,14 @@
     },
     "RESIZABLE_Y": {
         "description": "Изменение размеров окна по вертикали",
+        "value": false
+    },
+    "FULLSCREEN": {
+        "description": "Полноэкранный режим",
+        "value": false
+    },
+    "TOOLWINDOW": {
+        "description": "Наличие верхней панели",
         "value": false
     }
 }

@@ -4,238 +4,385 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
 import json
-
-SOURCE_RESOLUTION = 'resolution_data.json'  # имя файла для данных разрешения
-ICON_PATH = 'world_of_tanks.ico'
-
-# ---------------------------------------------------------
-# события
-def entered(text):
-    """
-    Изменяет текст указанных объектов при наведении на них мыши
-    """
-    exit_button['text'] = text
+from typing import Union, Any
 
 
-def leaved(text):
-    """
-    Изменяет текст при снятии и них курсора
-    """
-    exit_button['text'] = text
-# ----------------------------------------------------------
+class Behaviour(tk.Tk):
+    def __init__(self):
+        super().__init__()
 
+    @staticmethod
+    def json_writing(data: dict, source: str) -> None:
+        """
+        Функция записывает словарь данных
+        data - что записывать
+        source - куда записывать
+        """
+        with open(source, 'w', encoding='utf-8') as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
 
+    @staticmethod
+    def json_reading(source: str) -> dict:
+        """
+        Функция возвращает словарь данных
+        source - откуда считывать
+        """
+        with open(source, 'r', encoding='utf-8') as file:
+            return json.load(file)
 
+    def set_settings(self,
+                   source: str):
+        """
+        Применение настроек к классу окна, откуда метод был вызван
+        """
+        DICT = Behaviour.json_reading(source)  # чтение параметров
+        self.attributes('-fullscreen',
+                        DICT['FULLSCREEN']['value'])  # полноэкранный режим
+        self.attributes('-toolwindow',
+                        DICT['TOOLWINDOW']['value'])  # наличие верхней панели
 
-
-# запись параметров экрана в файл
-def json_writing(data: dict, source: str) -> None:
-    """
-    Функция записывает словарь данных
-    data - что записывать
-    source - куда записывать
-    """
-    with open(source, 'w', encoding='utf-8') as file:
-        json.dump(data, file, ensure_ascii=False, indent=4)
-
-
-def json_reading(source: str) -> dict:
-    """
-    Функция возвращает словарь данных
-    source - откуда считывать
-    """
-    with open(source, 'r', encoding='utf-8') as file:
-        return json.load(file)
-
-def print_info(widget, depth=0) -> None:
-    """
-    Печатает информацию о виджетах (TODO в отдельном окне, вызывается по кнопке, и клику по виджету)
-    """
-    widget_class = widget.winfo_class() # получение информации класса виджета
-    widget_width = widget.winfo_width()  # получение информации ширины виджета
-    widget_height = widget.winfo_height()  # получение информации высоты виджета
-    widget_x = widget.winfo_x()  # получение информаци координаты х верхнего левого угла виджета относительно родительского элемента
-    widget_y = widget.winfo_y()  # получение информации координаты у верхнего левого угла виджета относительно родительского элемента
-    widget_rootx = widget.winfo_rootx()  # получение информаци координаты х верхнего левого угла виджета относительно экрана
-    widget_rooty = widget.winfo_rooty()  # получение информации координаты у верхнего левого угла виджета относительно экрана
-    print(
-        '\t' * depth + \
-        f"{widget_class }\twight={widget_width}\theight={widget_height}\t"
-        f"x_parent={widget_x}\t\ty_parent={widget_y}\t\t"
-        f"x_screen={widget_rootx}\ty_screen={widget_rooty}"
-    )
-    # рекурсикная печать всех параметров вложенных виджетов
-    for widget in widget.winfo_children():
-        print_info(widget, depth + 1)
-
-def resolution_settings():
-    """
-    Открывает окно настроек разрешения окна
-    """
-    window.title('Настройки окна')
-    # создание места, где будут собраны все элементы интерфейса
-
-    n = len(RESOLUTION_DICT)
-    settings_label = [None] * n     # список для массива надписей
-    settings_entry = [None] * n      # список для массива полей
-
-    for i in range(n):
-        window.rowconfigure(i, weight=1)
-    window.rowconfigure(n + 1, weight=1)
-    window.rowconfigure(n + 2, weight=1)
-
-    window.columnconfigure(0, weight=1)
-    window.columnconfigure(1, weight=7)
-    window.columnconfigure(2, weight=1)
-    count = 0
-    row_count = 1
-    column_count = 1
-
-    # размещение элементов в окне
-    for i, j in RESOLUTION_DICT.items():
-        settings_label[count] = tk.Label(
-
-            text=j['description']
+        # вычисление координат расположения окна
+        if DICT['ON_CENTER_X']['value']:
+            X_COORDINATE = DICT['X_RESOLUTION']['value'] // 2 - \
+                           DICT['WIGHT']['value'] // 2
+        else:
+            if DICT['IS_LEFT']['value']:
+                X_COORDINATE = \
+                    DICT['X_INDENT']['value']
+            else:
+                X_COORDINATE = \
+                    DICT['X_RESOLUTION']['value'] - \
+                    DICT['WIGHT']['value'] - \
+                    DICT['X_INDENT']['value']
+        if DICT['ON_CENTER_Y']['value']:
+            Y_COORDINATE = \
+                DICT['Y_RESOLUTION']['value'] // 2 - \
+                DICT['HEIGHT']['value'] // 2
+        else:
+            if DICT['IS_UP']['value']:
+                Y_COORDINATE = \
+                    DICT['Y_INDENT']['value']
+            else:
+                Y_COORDINATE = \
+                    DICT['Y_RESOLUTION']['value'] - \
+                    DICT['HEIGHT']['value'] - \
+                    DICT['Y_INDENT']['value']
+        resolution = str(DICT['WIGHT']['value']) + 'x' + \
+                     str(DICT['HEIGHT']['value']) + '+' + \
+                     str(X_COORDINATE) + '+' + \
+                     str(Y_COORDINATE)
+        # задание размера окна
+        self.geometry(resolution)
+        self.resizable(
+            DICT['RESIZABLE_Y']['value'],
+            DICT['RESIZABLE_X']['value']
         )
+        # создание заголовка
+        self.title(DICT['TITLE']['value'])
 
-        settings_label[count].grid(
-            row=row_count,
-            column=column_count,
+    @staticmethod
+    def print_info(widget, depth=0) -> None:
+        """
+        Печатает информацию о виджетах (TODO в отдельном окне, вызывается по кнопке, и клику по виджету)
+        """
+        widget_class = widget.winfo_class()  # получение информации класса виджета
+        widget_width = widget.winfo_width()  # получение информации ширины виджета
+        widget_height = widget.winfo_height()  # получение информации высоты виджета
+        widget_x = widget.winfo_x()  # получение информаци координаты х верхнего левого угла виджета относительно родительского элемента
+        widget_y = widget.winfo_y()  # получение информации координаты у верхнего левого угла виджета относительно родительского элемента
+        widget_rootx = widget.winfo_rootx()  # получение информаци координаты х верхнего левого угла виджета относительно экрана
+        widget_rooty = widget.winfo_rooty()  # получение информации координаты у верхнего левого угла виджета относительно экрана
+        print(
+            '\t' * depth + \
+            f"{widget_class}\twight={widget_width}\theight={widget_height}\t"
+            f"x_parent={widget_x}\t\ty_parent={widget_y}\t\t"
+            f"x_screen={widget_rootx}\ty_screen={widget_rooty}"
+        )
+        # рекурсикная печать всех параметров вложенных виджетов
+        for widget in widget.winfo_children():
+            __class__.print_info(widget, depth + 1)
+
+    @staticmethod
+    def check_type(value: Any,
+                   name: str,
+                   type_check: Union[type, tuple[type]]) -> None:
+        """
+        Метод проверяет соответствие входных типов данных требуемым значениям
+        value - входное значение
+        name - имя переменной (для оформления)
+        type_check - требуемый тип или кортеж требуемых типов
+        """
+        if not isinstance(value, type_check):
+            raise TypeError(
+                f'Переменная {name} может принимать только '
+                f'значения типа {type_check}')
+
+    @staticmethod
+    def check_value_positive(value: Union[int, float],
+                             name: str) -> None:
+        """
+        Метод проверяет, положительны ли значения входных данных
+        value - входное значение
+        name - имя переменной (для оформления)
+        """
+        if value < 0:
+            raise TypeError(f'Переменная {name} может принимать только '
+                            f'положительные значения')
+
+    @staticmethod
+    def check_str_list(value: str,
+                       name: str,
+                       str_list: list[str]) -> None:
+        """
+        Метод проверяет, есть ли данная строка в разрешённых значениях, которые
+        она может принимать
+        value - входное значение
+        name - имя переменной (для оформления)
+        str_list - список возможных комбинаций
+        """
+        if value not in str_list:
+            raise ValueError(f"Значение переменной {name} может принимать одно из значений {str_list}, а не {value}")
+
+
+
+class Main_Window(Behaviour):
+    SOURCE_RESOLUTION = 'resolution_data.json'  # имя файла для данных разрешения
+    ICON_PATH = 'world_of_tanks.ico'
+
+    def __init__(self):
+        super().__init__()
+
+        # добавление ярлыка
+        self.iconbitmap(default=__class__.ICON_PATH)
+        Behaviour.set_settings(self, __class__.SOURCE_RESOLUTION)
+        self.building()
+        self.update()
+
+
+    def building(self):
+        """
+        Открывает окно настроек разрешения окна
+        Настраивает все параметры
+        """
+        DICT = Behaviour.json_reading(__class__.SOURCE_RESOLUTION)
+        # создание места, где будут собраны все элементы интерфейса
+        self.n = len(DICT)
+
+        self.settings_label = [None] * self.n  # список для массива надписей
+        self.entry = [None] * self.n  # список для массива полей
+        self.entry_var = [None] * self.n  # список для массива переменных
+
+        for i in range(self.n):
+            self.rowconfigure(i, weight=1)
+        self.rowconfigure(self.n + 1, weight=1)
+        self.rowconfigure(self.n + 2, weight=1)
+
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=7)
+        self.columnconfigure(2, weight=1)
+        self.row_count = 1
+        self.column_count = 1
+        self.count = 0  # индекс необходимиго элемента
+
+
+
+        # размещение элементов в окне
+        for key, value in DICT.items():
+            self.settings_label_create(value)
+
+            self.entry[self.count] = Entry_Field(row=self.row_count,
+                                                 colunn=self.column_count + 1,
+                                                 validate='none',
+                                                 sticky='w',
+                                                 insert_value=str(value['value']),
+                                                 class_name=__class__)
+
+
+            self.row_count += 1
+            self.count += 1
+        self.error_lable_create()
+        self.append_button_create()
+        self.exit_button_create()
+
+
+
+    def settings_label_create(self, value):
+        self.settings_label[self.count] = tk.Label(
+            text=value['description']
+        )
+        self.settings_label[self.count].grid(
+            row=self.row_count,
+            column=self.column_count,
             sticky='w',
             padx=15
         )
 
-        settings_entry[count] = tk.Entry(
 
+
+
+    def error_lable_create(self):
+        # поле сообщения об ошибке при введении параметров
+        ...
+
+    def append_button_create(self):
+        # кнопка принятия настроек
+        self.append_button = ttk.Button(
+
+            text='Принять',
+            state=['disabled']
+            # TODO дописать disabled enabled для отключения кнопки, если не было сделано изменений
+        )  # TODO дописать код для записи данных в json
+        self.append_button.grid(
+            row=self.row_count,
+            column=self.column_count + 1,
+            sticky='ew',
+            padx=10
         )
-        settings_entry[count].grid(
-            row=row_count,
-            column=column_count + 1,
-            sticky='ew'
+
+    def exit_button_create(self):
+        # кнопка выхода из меню настроек
+        self.exit_button = ttk.Button(
+            command=self.exit_button_clicked,
+            text='Выход'
         )
-        row_count += 1
-        count += 1
+        self.exit_button.grid(
+            row=self.row_count,
+            column=self.column_count,
+            sticky='w',
+            padx=15
+        )
+        self.exit_button.bind("<Enter>", self.exit_button_enter)
+        self.exit_button.bind("<Leave>", self.exit_button_leave)
 
-    # кнопка принятия настроек
-    append_button = ttk.Button(
+    def exit_button_enter(self, event):
+        """
+        Изменяет текст кнопки выхода при наведении мыши
+        """
+        self.exit_button["text"] = 'Меню'
 
-        text='Принять',
-        state=['disabled'] # TODO дописать disabled enabled для отключения кнопки, если не было сделано изменений
-    )     # TODO дописать код для записи данных в json
-    append_button.grid(
-        row=row_count,
-        column=column_count + 1,
-        sticky='ew',
-        padx=10
-    )
-
-    # кнопка выхода из меню настроек
-    exit_button = ttk.Button(
-
-        text='Выход'
-    )
-    exit_button.grid(
-        row=row_count,
-        column=column_count,
-        sticky='w',
-        padx=15
-    )
-    exit_button.bind("<Enter>", entered('Меню'))
-    exit_button.bind("<Leave>", entered('Выход'))
+    def exit_button_leave(self, event):
+        """
+        Изменяет текст кнопки выхода при снятии мыши
+        """
+        self.exit_button["text"] = 'Выход'
+    def exit_button_clicked(self):
+        self.destroy()
 
 
 
+class Entry_Field():
+    """
+    Класс создаёт поле ввода
+    TODO добавить валидацию
+    """
+    def __init__(self,
+                 row: int,
+                 colunn: int,
+                 validate: str='none',
+                 sticky: str='none',
+                 insert_value: Union[int, float, str]='',
+                 class_name=Main_Window) -> None:
+        """
+        row - номер ряда
+        column - номер столбца
+        validate - тип проверки
+        sticky - тип растяжения по пространству
+        insert_value - что записано в пустом поле изначально
+        class_name - в каком классе создавать поле
+        """
+        self.row = row
+        self.column = colunn
+        self.validate = validate
+        self.sticky = sticky
+        self.insert_value = insert_value
 
-# создание окна приложения
-window = tk.Tk()
-# создание заголовка
-window.title("Название окна")
-# добавление ярлыка
-window.iconbitmap(default=ICON_PATH)
-
-RESOLUTION_DICT = json_reading(SOURCE_RESOLUTION)   # чтение параметров
-window.attributes('-fullscreen', False) # полноэкранный режим (TODO добавить)
-window.attributes('-toolwindow', False) # наличие верхней панели (TODO добавить)
-
-
-# вычисление координат расположения окна
-if RESOLUTION_DICT['ON_CENTER_X']['value']:
-    X_COORDINATE = RESOLUTION_DICT['X_RESOLUTION']['value'] // 2 - \
-                   RESOLUTION_DICT['WIGHT']['value'] // 2
-else:
-    if RESOLUTION_DICT['IS_LEFT']['value']:
-        X_COORDINATE = \
-            RESOLUTION_DICT['X_INDENT']['value']
-    else:
-        X_COORDINATE = \
-            RESOLUTION_DICT['X_RESOLUTION']['value'] - \
-            RESOLUTION_DICT['WIGHT']['value'] - \
-            RESOLUTION_DICT['X_INDENT']['value']
-if RESOLUTION_DICT['ON_CENTER_Y']['value']:
-    Y_COORDINATE = \
-        RESOLUTION_DICT['Y_RESOLUTION']['value'] // 2 - \
-        RESOLUTION_DICT['HEIGHT']['value'] // 2
-else:
-    if RESOLUTION_DICT['IS_UP']['value']:
-        Y_COORDINATE = \
-            RESOLUTION_DICT['Y_INDENT']['value']
-    else:
-        Y_COORDINATE = \
-            RESOLUTION_DICT['Y_RESOLUTION']['value'] - \
-            RESOLUTION_DICT['HEIGHT']['value'] - \
-            RESOLUTION_DICT['Y_INDENT']['value']
-resolution = str(RESOLUTION_DICT['WIGHT']['value']) + 'x' + \
-             str(RESOLUTION_DICT['HEIGHT']['value']) + '+' + \
-             str(X_COORDINATE) + '+' + \
-             str(Y_COORDINATE)
-# задание размера окна
-window.geometry(resolution)
-window.resizable(
-    RESOLUTION_DICT['RESIZABLE_Y']['value'],
-    RESOLUTION_DICT['RESIZABLE_X']['value']
-)
+        self.create_var(class_name)
+        self.create_field(class_name)
 
 
-resolution_settings()
+    def create_field(self, class_name):
+        """
+        Метод создаёт поле с необходимыми параметрами
+        """
+        class_name.entry = tk.Entry(
+            validate=self._validate,
+            validatecommand=self.check_function
+        )
+        if self.sticky != 'none':
+            class_name.entry.insert(0, self._insert_value)
+            class_name.entry.grid(
+                row=self._row,
+                column=self._column,
+                sticky=self._sticky
+            )
+        else:
+            class_name.entry.insert(0, self._insert_value)
+            class_name.entry.grid(
+                row=self._row,
+                column=self._column
+            )
 
-# name1_label = tk.Label(
-#     frame,  # где расположена текстовая надпись
-#     text="Текст надписи 1"
-# )
-# name1_label.grid(  # расположение во фрейме
-#     row=3,
-#     column=1
-# )
-#
-# name1_tf = tk.Entry(  # поле ввода информации
-#     frame
-# )
-# name1_tf.grid(
-#     row=3,
-#     column=2
-# )
-#
-#
-# def name1_button_pressed():
-#     name1_data = name1_tf.get()  # полученине информации
-#     # создание всплывающего окна
-#     tk.messagebox.showinfo(title="Сообщение",
-#                            message=f"Тут текст сообщения {name1_data}"
-#                            )
-#
-#
-# name1_button = tk.Button(
-#     frame,
-#     text="Что она делает",
-#     command=name1_button_pressed
+    def create_var(self, class_name):
+        class_name.var = tk.StringVar()
+        class_name.var.set(self.insert_value)
 
-# )
-# name1_button.grid(
-#     row=4,
-#     column=2
-# )
+    def check_function(self):
+        ...
 
-# обновление информации о виджетах
-window.update()
-# создание цикла событий (всегда после методов параметров окна)
-window.mainloop()
+    @property
+    def row(self):
+        return self._row
+
+    @row.setter
+    def row(self, value: int):
+        Behaviour.check_type(value, 'row', int)
+        Behaviour.check_value_positive(value, 'row')
+        self._row = value
+
+    @property
+    def column(self):
+        return self._row
+
+    @column.setter
+    def column(self, value: int):
+        Behaviour.check_type(value, 'column', int)
+        Behaviour.check_value_positive(value, 'column')
+        self._column = value
+
+    @property
+    def validate(self):
+        return self._validate
+
+    @validate.setter
+    def validate(self, value: str):
+        Behaviour.check_type(value, 'validate', str)
+        Behaviour.check_str_list(value, 'validate',
+                                 ['none', 'focus', 'focusin', 'focusout', 'key', 'all'])
+        self._validate = value
+
+    @property
+    def sticky(self):
+        return self._sticky
+
+    @sticky.setter
+    def sticky(self, value: str):
+        Behaviour.check_type(value, 'sticky', str)
+        Behaviour.check_str_list(value, 'sticky',
+                                 ['n', 'e', 's', 'w',
+                                  'ne', 'nw', 'se', 'sw', 'ns', 'we', 'none'])
+        self._sticky = value
+
+    @property
+    def insert_value(self):
+        return self._insert_value
+
+    @insert_value.setter
+    def insert_value(self, value: Any):
+        self._insert_value= value
+
+
+
+
+s = Main_Window()
+s.mainloop()
+
