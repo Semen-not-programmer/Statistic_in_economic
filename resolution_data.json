@@ -1,0 +1,50 @@
+{
+    "ON_CENTER_X": {
+        "description": "Размещение по центру горизонтально",
+        "value": true
+    },
+    "ON_CENTER_Y": {
+        "description": "Размещение по центру вертикально",
+        "value": true
+    },
+    "IS_LEFT": {
+        "description": "Размещение слева",
+        "value": false
+    },
+    "IS_UP": {
+        "description": "Размещение сверху",
+        "value": false
+    },
+    "X_RESOLUTION": {
+        "description": "Разрешение монитора по горизонтали",
+        "value": 1920
+    },
+    "Y_RESOLUTION": {
+        "description": "Разрешение монитора по вертикали",
+        "value": 1080
+    },
+    "HEIGHT": {
+        "description": "Размер окна по вертикали",
+        "value": 400
+    },
+    "WIGHT": {
+        "description": "Размер окна по горизонтали",
+        "value": 400
+    },
+    "X_INDENT": {
+        "description": "Отступ по горизонтали",
+        "value": 2
+    },
+    "Y_INDENT": {
+        "description": "Отступ по вертикали",
+        "value": 80
+    },
+    "RESIZABLE_X": {
+        "description": "Изменение размеров окна по горизонтали",
+        "value": false
+    },
+    "RESIZABLE_Y": {
+        "description": "Изменение размеров окна по вертикали",
+        "value": false
+    }
+}

@@ -43,8 +43,11 @@ class Discrete_1D:
         self._dispersion = 0
         self.execute()
 
-    def execute(self):
-        if not __class__.flag:
+    def execute(self) -> None:
+        """
+        Метод обновляет значения вычисляемых переменных, если изменены исходные данные
+        """
+        if not __class__.flag: #если изменены исходные данные
             self._is_equal_len()
             self.miy_execute()
             self.dispersion_execute()
@@ -65,6 +68,9 @@ class Discrete_1D:
             self._dispersion += (self._meaning[i] - self._miy) ** 2 * self._probability[i]
 
     def _is_equal_len(self):
+        """
+        Проверяет, что длина списка значений равна длине списка вероятностей
+        """
         if self._meaning and \
                 self._probability and \
                 len(self._meaning) != len(self._probability):
@@ -118,11 +124,17 @@ class Discrete_1D:
 
     @property
     def miy(self):
+        """
+        Возвращает значение переменной
+        """
         self.execute()
         return self._miy
 
     @property
     def dispersion(self):
+        """
+        Возвращает значение переменной
+        """
         self.execute()
         return self._dispersion
 
@@ -134,7 +146,7 @@ class Discrete_1D:
 
     def __str__(self) -> str:
         """
-
+        Описывает основные параметры при выводе экземпляра класса
         """
         self.execute()
         accuracy = 2 #количество знаков после заппятой
@@ -155,12 +167,12 @@ class Discrete_1D:
 
 
 
-m = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-p = [0.2, 0.1, 0.1, 0.05, 0.05, 0.07, 0.03, 0.01, 0.344444, 1]
-# if probability.sum():
-#     raise ValueError("Сумма значений вероятностей не равна 1")
+
 
 if __name__ == "__main__":
+    m = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    p = [0.2, 0.1, 0.1, 0.05, 0.05, 0.07, 0.03, 0.01, 0.344444, 1]
+
     t = Discrete_1D(m, p)
     t.meaning = [1, 4, 3, 4, 5, 6, 7, 8, 9,1]
     print(t.dispersion)

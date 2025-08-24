@@ -61,7 +61,7 @@ class Selection:
     def percentile(self,
                    value: Union[int, float]) -> float:
         """
-        Метод расчитывает процент значений элементов, которые меньше заданного value
+        Метод расcчитывает процент значений элементов, которые меньше заданного value
         """
         n_p = 0
         for i in self._selection:
